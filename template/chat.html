@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <title>チャット</title>
+        <style>
+            input { display: block; }
+            ul { list-style: none; }
+        </style>
+    </head>
+    <body>
+        <ul id="messages"></ul>
+        チャット
+        <form id="chatbox">
+            <textarea></textarea>
+            <input type="submit" value="送信" />
+        </form>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+        </script>
+        <script>
+            $(function() {
+                var socket = null;
+                var msgBox = $("#chatbox textarea");
+                var messages = $("#messages");
+                $("chatbox").submit(function() {
+                    if (!msgBox.val()) return false;
+                    console.log(msgBox.val())
+                    if (!socket) {
+                        alert("error: Not connection to WebSocket");
+                        return false;
+                    }
+                    socket.send(msgBox.val());
+                    msgBox.val("");
+                    return false;               
+                });
+                if (!window["WebSocket"]) {
+                    alert("error: WebSocket is not ready.");
+                } else {
+                    socket = new WebSocket("ws://localhost:8080/room");
+                    socket.onclose = function() {
+                        alert("Connection ended");
+                    }
+                    socket.onmessage = function(e) {
+                        messages.append($("<li>").text(e.data))
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>	
